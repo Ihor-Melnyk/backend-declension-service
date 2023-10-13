@@ -11,11 +11,16 @@ function declineNameCase(name, gender = "male", caseType = "genitive") {
   if (caseType === "genitive") {
     if (gender === "male") {
       declinedName = declinedName
+        .replace(
+          /(і[бвгґджзклмнпрстфхцчшщ])$/,
+          "о" + declinedName.slice(-1) + "а"
+        ) // закінчення на "і"+приголосна
         .replace(/а$/, "и") // закінчення на "а";
         .replace(/я$/, "і") // закінчення на "я";
+        .replace(/[уеіаоєяию]й$/, declinedName.slice(-1) + "я") // закінчення на голосну+"й";
         .replace(/(Ігор)$/, declinedName + "я") // вийняток "Ігор"
         .replace(/(Лазар)$/, declinedName + "я") // вийняток "Лазар"
-        .replace(/([бвгґджзклмнпрстфхцчшщ])$/, lastName.slice(-1) + "а") // закінчення на приголосну
+        .replace(/([бвгґджзклмнпрстфхцчшщ])$/, declinedName.slice(-1) + "а") // закінчення на приголосну
         .replace(/(Лаврін)$/, declinedName + "а") // вийняток "Лаврін"
         .replace(/(Олефір)$/, declinedName + "а") // вийняток "Олефір"
         .replace(
@@ -27,7 +32,12 @@ function declineNameCase(name, gender = "male", caseType = "genitive") {
           declinedName.slice(-2, -1) + "а"
         ); // закінчення на приголосна+"о";
     } else if (gender === "female") {
-      declinedName = declinedName.replace(/а$/, "и").replace(/я$/, "і");
+      declinedName = declinedName
+        .replace(/([бвгґджзклмнпрстфхцчшщ])$/, declinedName.slice(-1) + "і") // закінчення на приголосну
+        .replace(/іа$/, "іі")
+        .replace(/а$/, "и")
+        .replace(/ія$/, "ії")
+        .replace(/(я|ь)$/, "і");
     }
   }
 
@@ -108,12 +118,7 @@ app.post("/declineName", (req, res) => {
   const { lastName, firstName, middleName, gender, lastNameType, caseType } =
     req.body;
 
-  const declinedLastName = declineLastName(
-    lastName,
-    gender,
-    lastNameType,
-    caseType
-  );
+  const declinedLastName = declineLastName(lastName, gender, caseType);
   const declinedFirstName = declineNameCase(firstName, gender, caseType);
   const declinedMiddleName = declineMiddleName(middleName, gender, caseType);
 
